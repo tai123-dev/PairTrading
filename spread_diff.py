@@ -70,6 +70,8 @@ for i in table["Z"]:
 
 table["Signal"] = signal
 trade_log = table[(table["Signal"].notna()) & (table["Signal"] != "")]
-table.to_csv("data/KO_PEP_spread_signal.csv")
-trade_log.to_csv("data/KO_PEP_trades.csv")
+table.to_csv("data/KO_PEP_spread_signal.csv", index=True)
+trade_log.to_csv("data/KO_PEP_trades.csv", index=True)
 print(table.head())
+print(table[table["Signal"] != ""][["Z", "Signal"]])
+print(table["Z"].min(), table["Z"].max())
