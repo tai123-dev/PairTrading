@@ -84,11 +84,11 @@ for date, row in trade_log.iterrows():
         if (direction == "Long KO / Short PEP"):
             KO_PnL = (KO_Exit - KO_Entry) / KO_Entry
             PEP_PnL = (PEP_Entry - PEP_Exit) / PEP_Entry
-            Total_PnL_Each_Trade = KO_PnL + PEP_PnL
+            Total_PnL_Each_Trade = KO_PnL + PEP_PnL - 0.004
         else:
             KO_PnL = (KO_Entry - KO_Exit) / KO_Entry
             PEP_PnL = (PEP_Exit - PEP_Entry) / PEP_Entry
-            Total_PnL_Each_Trade = KO_PnL + PEP_PnL
+            Total_PnL_Each_Trade = KO_PnL + PEP_PnL - 0.004
         if (best_Trade_PnL == None or Total_PnL_Each_Trade >= best_Trade_PnL):
             best_Trade_PnL = Total_PnL_Each_Trade
             best_Trade = Exit_Date
@@ -128,6 +128,7 @@ total_trade = len(trade_table)
 if (total_trade > 0):
     average_PnL = Total_Trade_PnL/total_trade
     win_rate = (win_Trade/total_trade)
+    # Choosing T-bills because this model do a shor period of time, compare with T-bills make more sense
     risk_free_rate = 0.04/252
     trade_table["Excess_return"] = trade_table["Total_PnL_Each_Trade"] - risk_free_rate
     sharpe_ratio = (
