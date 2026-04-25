@@ -22,9 +22,9 @@ tickers = [
     "UTL", "AWK", "SWX", "NWN", "UGI"
 ]
 data = yf. download(tickers, start="2024-01-01", end="2025-01-01")["Close"]
-os.makedirs("data", exist_ok=True)
+os.makedirs("PairsTrading/data", exist_ok=True)
 for ticker in tickers:
-    data[[ticker]].to_csv(f"data/{ticker}_daily.csv")
+    data[[ticker]].to_csv(f"PairsTrading/data/{ticker}_daily.csv")
 print(data.head())
 aligned = data.dropna(axis=1)
 aligned.to_csv("data/30_Utility_Stock.csv")
