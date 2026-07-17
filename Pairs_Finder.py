@@ -3,18 +3,28 @@ import numpy as np
 from itertools import combinations
 
 
-def pairs_finder(data):
+def pairs_finder(data, n=20):
     normalized = data / data.iloc[0]
     # print(normalized)
+
+    # Convert to a NumPy matrix (days x stocks)
+    matrix = normalized.values  # (num_days, num_stocks)
+    tickers = normalized.columns.tolist()
+    num_stocks = len(tickers)
+    # Compute all pairwise distances at once
     results = []
-    for stock_a, stock_b in combinations(normalized.columns, 2):
-        diff = normalized[stock_a] - normalized[stock_b]
-        distance = np.sum(diff ** 2)
-        results.append((stock_a, stock_b, distance))
+    for i in range(num_stocks):
+        for j in range(i+1, num_stocks):
+            diff = matrix[:, i] - matrix[:, j]
+            distance = np.dot(diff, diff)
+            results.append((tickers[i], tickers[j], distance))
+
+    # Sort and return top n pairs
     results.sort(key=lambda x: x[2])
-    results_df = pd.DataFrame(
-        results, columns=["Stock_A", "Stock_B", "Distance"])
-    results_df = results_df.sort_values("Distance")
-    best_pair = results_df.iloc[0]
-    print(best_pair)
-    return best_pair["Stock_A"], best_pair["Stock_B"]
+    top_pairs = [(a, b, d) for a, b, d in results[:n]]
+
+    print(f"Top {n} pairs found:")
+    for i, (a, b, d) in enumerate(top_pairs, 1):
+        print(f"  {i}. {a} / {b}")
+
+    return top_pairs

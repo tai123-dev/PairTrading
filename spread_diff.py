@@ -9,7 +9,7 @@ def spread_diff(stock_a, stock_b):
                        end="2025-06-01")["Close"]
     table = data
     table["Spread_Diff"] = table[stock_a]-table[stock_b]
-    table.to_csv(f"PairsTrading/data/{stock_a}_{stock_b}_spread.csv")
+    table.to_csv(f"data/{stock_a}_{stock_b}_spread.csv")
     average = table["Spread_Diff"].rolling(window=30).mean()
     deviation = table["Spread_Diff"].rolling(window=30).std()
     table["Z"] = (table["Spread_Diff"] - average) / deviation
@@ -41,9 +41,9 @@ def spread_diff(stock_a, stock_b):
     table["Signal"] = signal
     trade_log = table[(table["Signal"].notna()) & (table["Signal"] != "")]
     table.to_csv(
-        f"PairsTrading/data/{stock_a}_{stock_b}_spread.csv", index=True)
+        f"data/{stock_a}_{stock_b}_spread.csv", index=True)
     trade_log.to_csv(
-        f"PairsTrading/data/{stock_a}_{stock_b}_trades.csv", index=True)
+        f"data/{stock_a}_{stock_b}_trades.csv", index=True)
 
     # BackTesting
     trade_status = False
@@ -91,7 +91,7 @@ def spread_diff(stock_a, stock_b):
             if (direction == f"Long {stock_a} / Short {stock_b}"):
                 stock_a_PnL = (stock_a_Exit - stock_a_Entry) / stock_a_Entry
                 stock_b_PnL = (stock_b_Entry - stock_b_Exit) / stock_b_Entry
-                Total_PnL_Each_Trade = stock_a_PnL + stock_b_PnL - 0.004 # Minus transaction cost
+                Total_PnL_Each_Trade = stock_a_PnL + stock_b_PnL - 0.004  # Minus transaction cost
             else:
                 stock_a_PnL = (stock_a_Entry - stock_a_Exit) / stock_a_Entry
                 stock_b_PnL = (stock_b_Exit - stock_b_Entry) / stock_b_Entry
