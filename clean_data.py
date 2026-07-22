@@ -5,7 +5,7 @@ import yfinance as yf
 def clean_data():
 
     wikipedia_read = pd.read_html(
-        "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
+        "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies", storage_options={"User-Agent": "Mozilla/5.0"})
 
     s_and_p_500 = wikipedia_read[0]
 
