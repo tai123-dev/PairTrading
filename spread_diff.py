@@ -12,6 +12,7 @@ def spread_diff(stock_a, stock_b):
     table = data
     table["Spread_Diff"] = table[stock_a]-table[stock_b]
     half_life_spread = half_life(table["Spread_Diff"])
+    print(f"Half life spread: {half_life_spread} ")
     table.to_csv(f"data/{stock_a}_{stock_b}_spread.csv")
     average = table["Spread_Diff"].rolling(window=30).mean()
     deviation = table["Spread_Diff"].rolling(window=30).std()
@@ -20,6 +21,8 @@ def spread_diff(stock_a, stock_b):
     position = "Flat"
     day_counter = 0
     enter = entry_threshold(half_life_spread)
+    print(f"Max Z-score : {table["Z"].abs().max()}")
+    print(f"Spread Diff: {table["Z"].std()}")
     for i in table["Z"]:
         if position == "Flat":
             if i > enter:
@@ -159,9 +162,21 @@ def spread_diff(stock_a, stock_b):
         print(f"Total Trade PnL: {Total_Trade_PnL*100:.2f}%")
         print(trade_table.groupby(trade_table["Entry_Date"].dt.year)[
             "Total_PnL_Each_Trade"].sum())
+        print(f"Sharpe ratio: {sharpe_ratio}")
+        print(f"Max Drawdown: {max_drawdown * 100:.2f}%")
+        print(f"Worst trade date: {worst_Trade}")
+        print(f"Wosrt trade PnL:{worst_Trade_PnL}")
+        print(f"Best trade date:{best_Trade}")
+        print(f"Best trade PnL:{best_Trade_PnL}")
         print(f"Half-life spread: {half_life_spread}")
+        print(trade_table[["Entry_Date", "Exit_Date", "Direction",
+                           "Total_PnL_Each_Trade", "Cumulative_PnL", "Excess_return"]])
+        return win_rate, average_PnL, Total_Trade_PnL, sharpe_ratio, max_drawdown
     else:
         print("No completed Trades")
+        print("No Sharpe Ratio to compute")
+        print("NO Max Drawdown to compute")
+        return 0, 0, 0, 0, 0
 
     # plt.figure(figsize=(8, 5))
     # plt.hist(trade_table["Total_PnL_Each_Trade"])
@@ -179,15 +194,8 @@ def spread_diff(stock_a, stock_b):
     # plt.ylabel("Cumulative Return")
     # plt.tight_layout()
     # plt.show()
-        print(f"Worst trade date: {worst_Trade}")
-        print(f"Wosrt trade PnL:{worst_Trade_PnL}")
-        print(f"Best trade date:{best_Trade}")
-        print(f"Best trade PnL:{best_Trade_PnL}")
-        print(f"Sharpe ratio: {sharpe_ratio}")
-        print(f"Max Drawdown: {max_drawdown * 100:.2f}%")
-        print(trade_table[["Entry_Date", "Exit_Date", "Direction",
-                           "Total_PnL_Each_Trade", "Cumulative_PnL", "Excess_return"]])
-        return win_rate, average_PnL, Total_Trade_PnL, sharpe_ratio, max_drawdown
+
+    # return win_rate, average_PnL, Total_Trade_PnL
 
 
 def half_life(spread) -> float:
@@ -201,8 +209,8 @@ def half_life(spread) -> float:
 
 
 def entry_threshold(half_life) -> float:
-    return 0.5 * math.log(half_life)
+    return 2.0 * math.sqrt(math.log(half_life))
 
 
 if __name__ == "__main__":
-    spread_diff("AMAT", "KLAC")
+    spread_diff("PNC", "RF")
