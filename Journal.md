@@ -28,3 +28,20 @@
     design       - Entry threshold logic is that slow pairs need higher z-score threshold, opposite with fast pairs, need lower threshold
                  - Exit logic is that z-score returning to nearly zero or stop if hit deadline
                  - ONE CONSTANT DOES NOT WORK ACROSS ALL PAIRS, NEXT THING TOMORROW
+
+- Jul 25: 
+    - Do:
+    + Rebuilt entry_threshold() from 0.5 * ln(half_life) to 2.0 * sqrt(ln(half_life)) since the first version cannot make the output small enough
+    + Fixed spread_diff.py - moved sharper ratio, max_drawdown, trade printes all insde if total_trades > 0 block
+    + Fixed else block to return (0,0,0,0,0) matching the 5-value return signature
+    + Add print(table["Z"].abs().max()) and print(["Z"].std()) to diagnose PNC/RF
+    - Learn:
+    + Working backwards from a desired threshold of 2.0 proved the formula c * ln(half_life) collapses — ln cancels and you just get the constant back. The formula was adding fake complexity.
+    + 2.0 is the literature baseline for pairs trading entry — don't invent numbers, borrow from validated research
+    + Slow pairs need higher thresholds because longer exposure = more things can go wrong = you need bigger initial edge
+    + sqrt controls growth so thresholds don't explode for very slow pairs
+    + SSD finds pairs that co-move perfectly — but perfect co-movement means external shocks hit both stocks equally, spread stays flat, no trades generated
+    + 2025 was volatile but PNC/RF spread barely moved (max Z = 2.83, std = 1.345) — the problem is the pairs, not the year
+    + Fundamental tension: more correlated = tighter spread = fewer trades
+
+## Next problem will be what information beyound price history tells you two stocks have a reason to sometimes diverge?
