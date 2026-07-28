@@ -212,5 +212,25 @@ def entry_threshold(half_life) -> float:
     return 2.0 * math.sqrt(math.log(half_life))
 
 
+def compute_factor_loadings(tickers, start, end):
+    spy_ticker = ["SPY"]
+    spy_data = yf.download(spy_ticker, start, end)["Close"]
+    spy_data = spy_data["SPY"].pct_change().dropna()
+    print(spy_data.head())
+    data = yf.download(tickers, start,
+                       end)["Close"]
+    data = data.pct_change().dropna()
+
+    beta_dict = {}
+    for ticker in tickers:
+        stock_return = data[ticker]
+        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
+            spy_data, stock_return)
+        beta_dict[ticker] = slope
+    return beta_dict
+
+
 if __name__ == "__main__":
-    spread_diff("PNC", "RF")
+    factor_loading = compute_factor_loadings(
+        ["PLTR"], start="2024-06-01", end="2024-12-01")
+    print(f"HERE IS THE FACTOR LOADING: {factor_loading}")

@@ -45,3 +45,15 @@
     + Fundamental tension: more correlated = tighter spread = fewer trades
 
 ## Next problem will be what information beyound price history tells you two stocks have a reason to sometimes diverge?
+
+-  Jul 27:
+    - Identify, SSD (Square Sum Different) finds pairs by price history but is blind to whether the relationships is structural. We add factor loading to improve pairs selection. We use a fundamental factors model where we choose the factors ourselves, because it's interpretable (can be explain) and defensible. PCA finds factors automatically but produces uninterpretable components
+
+    - Decision made:
+        + Two-stage filtering pipeline for pair selection — SSD first as coarse filter, factor loading distance second as fine filter.
+
+## Open question for next session: 500 stocks means 500 regressions to compute factor loadings. Should you run them one by one or is there a smarter way?
+
+- Jul 27:
+    - We choose to trade on noise term (ε) because the factor on market and loading all affect on others systematic factors have persistent trends, but the noise term is random, spikes up and down, but it has no persistent trend, it revert back to zero
+    - The sharpe ratio that we are calculating is using 3-month Treasury bill
