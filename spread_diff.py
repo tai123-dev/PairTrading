@@ -3,6 +3,7 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import scipy
 import math
+import numpy
 
 
 def spread_diff(stock_a, stock_b):
@@ -213,10 +214,12 @@ def entry_threshold(half_life) -> float:
 
 
 def compute_factor_loadings(tickers, start, end):
+    oil_ticker = ["DCOILWTICO"]
     spy_ticker = ["SPY"]
     spy_data = yf.download(spy_ticker, start, end)["Close"]
     spy_data = spy_data["SPY"].pct_change().dropna()
-    print(spy_data.head())
+    oil_data = yf.download(oil_ticker, start, end)["Close"]
+    oil_data = oil_data["DCOILWTICO"].pct_change().dropna()
     data = yf.download(tickers, start,
                        end)["Close"]
     data = data.pct_change().dropna()
@@ -224,9 +227,13 @@ def compute_factor_loadings(tickers, start, end):
     beta_dict = {}
     for ticker in tickers:
         stock_return = data[ticker]
-        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
-            spy_data, stock_return)
-        beta_dict[ticker] = slope
+        aligned_dict = {"Market": spy_data,
+                        "Oil": oil_data, "Stock": stock_return}
+        df = pd.DataFrame(aligned_dict).dropna()
+        data_pack = [numpy.ones(len(df["Market"])), df["Market"], df["Oil"]]
+        x = numpy.column_stack(data_pack)
+        beta = numpy.linalg.lstsq(x, df["Stock"], rcond=None)
+        beta_dict[ticker] = [beta[0][1], beta[0][2]]
     return beta_dict
 
 

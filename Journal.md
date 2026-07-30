@@ -57,3 +57,17 @@
 - Jul 27:
     - We choose to trade on noise term (ε) because the factor on market and loading all affect on others systematic factors have persistent trends, but the noise term is random, spikes up and down, but it has no persistent trend, it revert back to zero
     - The sharpe ratio that we are calculating is using 3-month Treasury bill
+    - Do:
+    + Created a function called compute_factor_loading, where it download S&P500 (SPY) from yfiance, download the start day is 2024-06-01 and end day is 2024-12-01
+    + Download all the stock with the same date as SPY, then convert price series into percentage return using pct_change(), then use dropna() to drop the row with NaN so that scipy.linregress() does not raise an error. All price must be CLOSE. Then return the function with a dictionary where it will contain the ticker and it beta value
+
+- Jul 29:
+    - Do: 
+    + Fix the compute_factor_loadings, downloaded Oil from FRED as "DCOILWTICO" 
+    + Create a dictionary to store the market return, oil return and stock return because each factor has different date of data, and the reason for dictionary is to turn the dictionary into DataFrame using pd.DataFrame()
+    + Then create data_pack where it store alpha, market and oil into a list, numpy.ones(len of the market (follow market dates))
+    + Use column stack to put it as column, three columns (alpha, market, oil)
+    + Then use numpy.linalg.lstsq to handle two inputs, one outputs only
+    + The beta_dict will have the ticker as key, and each key will have two betas, market and oil as value
+    - Question raise: What is the use of betas, the market and oil beta
+    + Similar betas -> systematic shocks cancel out in the spread -> what is left in the spread is mostly ε (noise term) -> ε mean reverts -> so the spread mean reverts -> tradeable signal
