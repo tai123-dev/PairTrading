@@ -2,7 +2,7 @@
 ## This Journal is a little bit late since Tai is too stupid to realize that he needs a Journal
 
 - Jul 21:
-    - Do:
+    - Did:
     + Create clean_data.py where pull S&P 500 stock from Wikipedia, download 2024 data then clean it
     + Clean data here mean just take the name of the stocks from Wikipedia, then drop all the stocks that
     missing more than 10% of data, 10% because we still need data to have pairs to do some trades, no more 
@@ -16,7 +16,7 @@
     + Add a exit rule, exit a trade after the day_counter (a count for how many days did we enter this trade) is 
     bigger than half-life/2 or z-score is nearly equal to zero
 
-    - Learn:
+    - Learned:
     + Statistic: - More trades means less luck, trying constant on the whole data file including 2024-2025 will give you luck
                     not your strategy
                  - So split the data in half, 2024 for building strategy, 2025 for testing that strategy
@@ -62,7 +62,7 @@
     + Download all the stock with the same date as SPY, then convert price series into percentage return using pct_change(), then use dropna() to drop the row with NaN so that scipy.linregress() does not raise an error. All price must be CLOSE. Then return the function with a dictionary where it will contain the ticker and it beta value
 
 - Jul 29:
-    - Do: 
+    - Did: 
     + Fix the compute_factor_loadings, downloaded Oil from FRED as "DCOILWTICO" 
     + Create a dictionary to store the market return, oil return and stock return because each factor has different date of data, and the reason for dictionary is to turn the dictionary into DataFrame using pd.DataFrame()
     + Then create data_pack where it store alpha, market and oil into a list, numpy.ones(len of the market (follow market dates))
@@ -71,3 +71,12 @@
     + The beta_dict will have the ticker as key, and each key will have two betas, market and oil as value
     - Question raise: What is the use of betas, the market and oil beta
     + Similar betas -> systematic shocks cancel out in the spread -> what is left in the spread is mostly ε (noise term) -> ε mean reverts -> so the spread mean reverts -> tradeable signal
+
+- Aug 2:
+    - Did: 
+    + Move the compute_factor_loading to a new file where every file can access it without running into circular import.
+    + Write a function that calculate the distance call euclidean that compute the distance of a pair using the two betas of each ticker, oil and market
+    + Problem with oil and  yfinace is that yfinace does not have a ticker call "DCOILWTICO", so I have to get API keys from FRED, download freadpi and downloaded the oil data
+    + The main problem we are having right now is that the threshold for the distance is not making any sense right now since we only set it bceause the smaller the distance, the better the pair, so the thinking we should do right now is that how to come up with a threshold that make sense with all the pairs, that can give use tradeable signal
+    + I thought of using the average for the distance but it did not make sense it will eliminate half of the data, the average is about at the middle of data
+    
