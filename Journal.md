@@ -80,3 +80,12 @@
     + The main problem we are having right now is that the threshold for the distance is not making any sense right now since we only set it bceause the smaller the distance, the better the pair, so the thinking we should do right now is that how to come up with a threshold that make sense with all the pairs, that can give use tradeable signal
     + I thought of using the average for the distance but it did not make sense it will eliminate half of the data, the average is about at the middle of data
     
+- Aug 8:
+    - Did:
+    + Ran into a problem that max_distance is not working, does not adapt to the actual distribution of pairswise Euclidean distance
+    + Came up with a solution that to make a 2 pass, first pass will compute all Euclidean distance for top 20 pairs that pass the first filter(SDD), then store it in dictionary
+    + Then compute mean and std of those distance, set "threshold = mean - n_std * std", filter pairs below threshold
+    + Another problem came up, it is that there are none trade execute across all pairs, z-scores never reach entry threshold
+    + The root of the problem is that they are too similar, from the same company share classes or near-identical utilities. So spread barely move
+    + So I has to came up with a solution is that put another filter, so there are three filter, this filter will block pairs from the same company using ticker.info['website'] from yfinance
+    + Implement this itno clean_data.py  as a loop saving stock_info.csv

@@ -14,4 +14,4 @@ print(f"Best top 5 pairs and top 20 pairs found: {top_5} and {top_20}")
 
 # run trading strategy
 for i in range(len(top_20)):
-    spread_diff(top_5[i][0], top_5[i][1])
+    spread_diff(top_20[i][0], top_20[i][1])

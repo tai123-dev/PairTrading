@@ -14,7 +14,7 @@ def euclidean(ticker1, ticker2, beta_dict):
     return euclidean_distance
 
 
-def pairs_finder(data, beta_dict, max_distance=0.15, n=20):
+def pairs_finder(data, beta_dict, n=20, n_std=1):
     normalized = data / data.iloc[0]
     # print(normalized)
 
@@ -33,15 +33,22 @@ def pairs_finder(data, beta_dict, max_distance=0.15, n=20):
     # Sort and return top n pairs
     results.sort(key=lambda x: x[2])
     top_pairs = [(a, b, d) for a, b, d in results[:n]]
-    top_pairs_by_euclidean = []
+    top_pairs_by_euclidean = {}
     for ticker1, ticker2, _ in top_pairs:
         euclidean_distance = euclidean(ticker1, ticker2, beta_dict)
-        if euclidean_distance <= max_distance:
-            top_pairs_by_euclidean.append(
-                (ticker1, ticker2, euclidean_distance))
+        top_pairs_by_euclidean[(ticker1, ticker2)] = euclidean_distance
 
-    print(f"Top {n} pairs found:")
-    for i, (a, b, d) in enumerate(top_pairs_by_euclidean, 1):
+    mean = np.array(list(top_pairs_by_euclidean.values())).mean()
+    std = np.array(list(top_pairs_by_euclidean.values())).std()
+    threshold = mean - n_std * std
+    qualify_pairs = {}
+    for ticker in top_pairs_by_euclidean:
+        distance = top_pairs_by_euclidean.get(ticker)
+        if distance < threshold:
+            qualify_pairs[ticker] = distance
+
+    print(f"Top {len(qualify_pairs)} pairs found:")
+    for i, (a, b) in enumerate(qualify_pairs.keys(), 1):
         print(f"  {i}. {a} / {b}")
 
-    return top_pairs_by_euclidean
+    return list(qualify_pairs.keys())

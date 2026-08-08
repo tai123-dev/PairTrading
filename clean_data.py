@@ -17,6 +17,15 @@ def clean_data():
     data = data.loc[:, missing_day <= day_of_trade*10/100]
     data = data.ffill()
     data.to_csv("data/clean_data.csv")
+    stock_info = {}
+
+    for ticker in s_and_p_500_name:
+        try:
+            stock_info[ticker] = yf.Ticker(ticker).info['website']
+        except Exception:
+            stock_info[ticker] = float('nan')
+
+    pd.Series(stock_info).to_csv("data/stock_info.csv", header=True)
 
 
 if __name__ == "__main__":
