@@ -3,16 +3,27 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import scipy
 import math
+from statsmodels.tsa.stattools import adfuller
 import numpy
 
 
-def spread_diff(stock_a, stock_b):
+def spread_diff(stock_a, stock_b, data):
     # csv_path = ("data/KO_PEP_aligned.csv")
-    data = yf.download([stock_a, stock_b], start="2025-01-01",
-                       end="2025-06-01")["Close"]
-    table = data
-    table["Spread_Diff"] = table[stock_a]-table[stock_b]
+    data1 = yf.download([stock_a, stock_b], start="2025-01-01",
+                        end="2025-06-01")["Close"]
+    table = data1
+    x = data[stock_b]
+    y = data[stock_a]
+    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
+    beta = slope
+    in_sample_spread = (y - beta * x).dropna()
+    table["Spread_Diff"] = (table[stock_a] - beta * table[stock_b]).dropna()
+    adf_test = adfuller(in_sample_spread)
+    if adf_test[1] >= 0.05:
+        return None
     half_life_spread = half_life(table["Spread_Diff"])
+    if half_life_spread > 25:
+        return None
     print(f"Half life spread: {half_life_spread} ")
     table.to_csv(f"data/{stock_a}_{stock_b}_spread.csv")
     average = table["Spread_Diff"].rolling(window=30).mean()
@@ -22,7 +33,7 @@ def spread_diff(stock_a, stock_b):
     position = "Flat"
     day_counter = 0
     enter = entry_threshold(half_life_spread)
-    print(f"Max Z-score : {table["Z"].abs().max()}")
+    print(f"Z-score : {table["Z"]}")
     print(f"Spread Diff: {table["Z"].std()}")
     for i in table["Z"]:
         if position == "Flat":

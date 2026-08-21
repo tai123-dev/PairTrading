@@ -14,7 +14,7 @@ def euclidean(ticker1, ticker2, beta_dict):
     return euclidean_distance
 
 
-def pairs_finder(data, beta_dict, n=20, n_std=1):
+def pairs_finder(data, beta_dict, ssd_band=40, euclidean_std=1):
     normalized = data / data.iloc[0]
     # print(normalized)
 
@@ -22,6 +22,7 @@ def pairs_finder(data, beta_dict, n=20, n_std=1):
     matrix = normalized.values  # (num_days, num_stocks)
     tickers = normalized.columns.tolist()
     num_stocks = len(tickers)
+    print(f"num_stocks: {num_stocks}")
     # Compute all pairwise distances at once
     results = []
     for i in range(num_stocks):
@@ -29,18 +30,34 @@ def pairs_finder(data, beta_dict, n=20, n_std=1):
             diff = matrix[:, i] - matrix[:, j]
             distance = np.dot(diff, diff)
             results.append((tickers[i], tickers[j], distance))
+    ssd_list = []
+    for i in range(len(results)):
+        x, y, z = results[i]
+        ssd_list.append(z)
+
+    lower_bound = np.percentile(ssd_list, ssd_band)
+    upper_bound = np.percentile(ssd_list, 100 - ssd_band)
+    qualify_over_bound = []
+    print(f"Pairs passing SSD band filter: {len(qualify_over_bound)}")
+    print(f"lower: {lower_bound}, upper: {upper_bound}")
+    print(f"Sample SSDs: {ssd_list[:5]}")
+
+    for a, b, c in results:
+        if c > lower_bound and c < upper_bound:
+            qualify_over_bound.append((a, b, c))
+
+    print(f"Pairs passing SSD band filter: {len(qualify_over_bound)}")
 
     # Sort and return top n pairs
-    results.sort(key=lambda x: x[2])
-    top_pairs = [(a, b, d) for a, b, d in results[:n]]
+
     top_pairs_by_euclidean = {}
-    for ticker1, ticker2, _ in top_pairs:
+    for ticker1, ticker2, _ in qualify_over_bound:
         euclidean_distance = euclidean(ticker1, ticker2, beta_dict)
         top_pairs_by_euclidean[(ticker1, ticker2)] = euclidean_distance
 
     mean = np.array(list(top_pairs_by_euclidean.values())).mean()
     std = np.array(list(top_pairs_by_euclidean.values())).std()
-    threshold = mean - n_std * std
+    threshold = mean - euclidean_std * std
     qualify_pairs = {}
     for ticker in top_pairs_by_euclidean:
         distance = top_pairs_by_euclidean.get(ticker)

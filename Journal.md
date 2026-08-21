@@ -89,3 +89,15 @@
     + The root of the problem is that they are too similar, from the same company share classes or near-identical utilities. So spread barely move
     + So I has to came up with a solution is that put another filter, so there are three filter, this filter will block pairs from the same company using ticker.info['website'] from yfinance
     + Implement this itno clean_data.py  as a loop saving stock_info.csv
+
+- Aug 14:
+    - Did: 
+    + SSD band filter redesign. Replaced the top-N smallest SSd approach with a percentile band [ssd_band , 100 - sdd_band]. The reason for this is because mean plus minus std was broken because the SSD distribution is heavily righ skewed - a few extreme outlier pairs were dragging the mean and std so high that the boundaries were meaningless. Percentile bands are robuse to outliers beacuse they only care about rank, not magnitufe. ssd_nband = 40 gives the middle 20% pairs.
+    + Hedge ratio added: Replaced the raw price difference spread (stock_a - stock_b) with a beta adjusted spread (stock_a - beta * stock_b). Beta is etimated using scipy.stats.linregress on 2024 in-sample prices, then applied to 2025 out-of-sample prices. This is to make sure that we notice that the stock is move up and down together or just one stock move and the other does not. This ensures systematic co-movement cancels out of the spread, leaving only idiosyncratic noise to trade.
+    + Half-life threshold where only choose pairs with half-life below 25 days, since more than 25 days can carry unnotice risk and too long to hold for a trading window.
+    + Need to be finish. ADF test, Half-life ranking for concentration control, same-company filter, matrix optimization
+
+- Aug 21:
+    - Did:
+    + Realized that the pairs generates 0 or 1 trades per pair. Because the standard deviation is to high which base on the normal distribution, it just take about 0.7% in one tail, which give close to 1 day, that mean that the Z-score exceed that standard deviation is very rare, like 1 days in a 102 days window of trading
+    + The entry threshold is not trigger 
