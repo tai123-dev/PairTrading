@@ -15,6 +15,12 @@ def euclidean(ticker1, ticker2, beta_dict):
 
 
 def pairs_finder(data, beta_dict, ssd_band=40, euclidean_std=1):
+    stock_info = pd.read_csv("data/stock_info.csv",
+                             index_col=0)["0"]
+    same_company = set()
+    for ticker1, ticker2 in combinations(data.columns.tolist(), 2):
+        if stock_info[ticker1] == stock_info[ticker2]:
+            same_company.add((ticker1, ticker2))
     normalized = data / data.iloc[0]
     # print(normalized)
 
@@ -27,6 +33,8 @@ def pairs_finder(data, beta_dict, ssd_band=40, euclidean_std=1):
     results = []
     for i in range(num_stocks):
         for j in range(i+1, num_stocks):
+            if (tickers[i], tickers[j]) in same_company:
+                continue
             diff = matrix[:, i] - matrix[:, j]
             distance = np.dot(diff, diff)
             results.append((tickers[i], tickers[j], distance))

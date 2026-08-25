@@ -105,4 +105,8 @@
 - Aug 24:
     - Did:
     + Delete the entry_threshold function because it does not make any sense and I don't rememeber derive it, instead of that function, we will use the paper threshold 2.0
-    
+- Aug 25:
+    - Did: 
+    + Added the same_company filter where it will eliminate the pair that come from the same company like FOX and FOXA. 
+    + The mechanism behind this filter is that from clean_data.py, it will cleaning data and loop through every single one of the stock and find the website of that stock, it will not download and clean dstock that does not have date. Then save it into stock_info.csv
+    + Pairs_Finder will loop through the stock_info.csv file and and create possible pair, if the two stocks are the same, it will add to same_company set, then if the pair show up in the normalized price, it will skip that pair
