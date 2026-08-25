@@ -101,3 +101,8 @@
     - Did:
     + Realized that the pairs generates 0 or 1 trades per pair. Because the standard deviation is to high which base on the normal distribution, it just take about 0.7% in one tail, which give close to 1 day, that mean that the Z-score exceed that standard deviation is very rare, like 1 days in a 102 days window of trading
     + The entry threshold is not trigger 
+
+- Aug 24:
+    - Did:
+    + Delete the entry_threshold function because it does not make any sense and I don't rememeber derive it, instead of that function, we will use the paper threshold 2.0
+    

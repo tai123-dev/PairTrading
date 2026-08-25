@@ -26,21 +26,23 @@ def spread_diff(stock_a, stock_b, data):
         return None
     print(f"Half life spread: {half_life_spread} ")
     table.to_csv(f"data/{stock_a}_{stock_b}_spread.csv")
-    average = table["Spread_Diff"].rolling(window=30).mean()
-    deviation = table["Spread_Diff"].rolling(window=30).std()
+    average = table["Spread_Diff"].rolling(
+        window=max(2 * int(half_life_spread), 20)).mean()
+    deviation = table["Spread_Diff"].rolling(
+        window=max(2 * int(half_life_spread), 20)).std()
     table["Z"] = (table["Spread_Diff"] - average) / deviation
     signal = []
     position = "Flat"
     day_counter = 0
-    enter = entry_threshold(half_life_spread)
+    print(f"Max Z-score: {table["Z"].max()}")
     print(f"Z-score : {table["Z"]}")
     print(f"Spread Diff: {table["Z"].std()}")
     for i in table["Z"]:
         if position == "Flat":
-            if i > enter:
+            if i > 2.0:
                 signal.append(f"ENTER: Short {stock_a} / Long {stock_b}")
                 position = "Shortspread"
-            elif i < -enter:
+            elif i < -2.0:
                 signal.append(f"ENTER: Long {stock_a} / Short {stock_b}")
                 position = "Longspread"
             else:
@@ -218,10 +220,6 @@ def half_life(spread) -> float:
     theta = abs(slope)
     half_life = 0.693 / theta
     return half_life
-
-
-def entry_threshold(half_life) -> float:
-    return 2.0 * math.sqrt(math.log(half_life))
 
 
 if __name__ == "__main__":
