@@ -26,6 +26,9 @@ def pairs_finder(data, beta_dict, ssd_band=40, euclidean_std=1):
 
     # Convert to a NumPy matrix (days x stocks)
     matrix = normalized.values  # (num_days, num_stocks)
+    sq = (matrix**2).sum(axis=0)
+    gram = np.dot(matrix.T, matrix)
+    ssd_matrix = sq.reshape(-1, 1) + sq.reshape(1, -1) - 2 *gram
     tickers = normalized.columns.tolist()
     num_stocks = len(tickers)
     print(f"num_stocks: {num_stocks}")

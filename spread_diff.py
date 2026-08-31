@@ -34,9 +34,9 @@ def spread_diff(stock_a, stock_b, data):
     signal = []
     position = "Flat"
     day_counter = 0
-    print(f"Max Z-score: {table["Z"].max()}")
-    print(f"Z-score : {table["Z"]}")
-    print(f"Spread Diff: {table["Z"].std()}")
+    print(f"Max Z-score: {table['Z'].max()}")
+    print(f"Z-score : {table['Z']}")
+    print(f"Spread Diff: {table['Z'].std()}")
     for i in table["Z"]:
         if position == "Flat":
             if i > 2.0:
@@ -185,7 +185,7 @@ def spread_diff(stock_a, stock_b, data):
         print(f"Half-life spread: {half_life_spread}")
         print(trade_table[["Entry_Date", "Exit_Date", "Direction",
                            "Total_PnL_Each_Trade", "Cumulative_PnL", "Excess_return"]])
-        return win_rate, average_PnL, Total_Trade_PnL, sharpe_ratio, max_drawdown
+        return win_rate, average_PnL, Total_Trade_PnL, sharpe_ratio, max_drawdown, half_life_spread
     else:
         print("No completed Trades")
         print("No Sharpe Ratio to compute")

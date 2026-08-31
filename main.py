@@ -10,9 +10,27 @@ factor_loading = compute_factor_loadings(
     data.columns.tolist(), start="2024-01-01", end="2024-06-01")
 # find best pair
 top_5 = pairs_finder(data, factor_loading, ssd_band=40, euclidean_std=1)
-top_20 = pairs_finder(data, factor_loading, ssd_band=40, euclidean_std=1)
-print(f"Best top 5 pairs and top 20 pairs found: {top_5} and {top_20}")
+print(f"Best top 5 pairs and top 20 pairs found: {top_5}")
+
+half_life_ranking = {}
+full_result = {}
 
 # run trading strategy
-for i in range(len(top_20)):
-    spread_diff(top_20[i][0], top_20[i][1], data)
+for i in range(len(top_5)):
+    result = spread_diff(top_5[i][0], top_5[i][1], data)
+    if result is not None:
+        half_life_ranking[(top_5[i][0], top_5[i][1])] = result[5]
+        full_result[(top_5[i][0], top_5[i][1])] = (result)
+
+sorted_pairs = dict(sorted(half_life_ranking.items(), key=lambda x: x[1]))
+
+stock_assign = set()
+best_pair = {}
+for key, value in sorted_pairs.items():
+    if key[0] not in stock_assign and key[1] not in stock_assign:
+        stock_assign.add(key[0])
+        stock_assign.add(key[1])
+        best_pair[(key[0], key[1])] = value
+
+for key, value in best_pair.items():
+    print(f"Best Pair: {key[0], key[1]} - Half-life value: {value}")
