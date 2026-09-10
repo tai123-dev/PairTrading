@@ -190,7 +190,7 @@ def spread_diff(stock_a, stock_b, data):
         print("No completed Trades")
         print("No Sharpe Ratio to compute")
         print("NO Max Drawdown to compute")
-        return 0, 0, 0, 0, 0
+        return None
 
     # plt.figure(figsize=(8, 5))
     # plt.hist(trade_table["Total_PnL_Each_Trade"])

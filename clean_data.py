@@ -19,7 +19,7 @@ def clean_data():
     data.to_csv("data/clean_data.csv")
     stock_info = {}
 
-    for ticker in s_and_p_500_name:
+    for ticker in data:
         try:
             stock_info[ticker] = yf.Ticker(ticker).info['website']
         except Exception:

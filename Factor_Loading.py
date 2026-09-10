@@ -9,16 +9,14 @@ api_key = os.getenv("API_KEY")
 fred = Fred(api_key)
 
 
-def compute_factor_loadings(tickers, start, end):
-    oil_ticker = ["DCOILWTICO"]
+def compute_factor_loadings(data, tickers, start, end):
     spy_ticker = ["SPY"]
     spy_data = yf.download(spy_ticker, start, end)["Close"]
     spy_data = spy_data["SPY"].pct_change().dropna()
     oil_data = fred.get_series("DCOILWTICO", start, end)
     oil_data = oil_data.pct_change().dropna()
     print(oil_data.head(5))
-    data = yf.download(tickers, start,
-                       end)["Close"]
+    data = data.loc[start: end]
     data = data.pct_change().dropna()
 
     beta_dict = {}

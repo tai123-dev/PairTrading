@@ -14,55 +14,43 @@ def euclidean(ticker1, ticker2, beta_dict):
     return euclidean_distance
 
 
-def pairs_finder(data, beta_dict, ssd_band=40, euclidean_std=1):
-    stock_info = pd.read_csv("data/stock_info.csv",
-                             index_col=0)["0"]
+def pairs_finder(data, stock_info, beta_dict, ssd_band=40, euclidean_std=1):
+
     same_company = set()
     for ticker1, ticker2 in combinations(data.columns.tolist(), 2):
         if stock_info[ticker1] == stock_info[ticker2]:
             same_company.add((ticker1, ticker2))
     normalized = data / data.iloc[0]
-    # print(normalized)
-
-    # Convert to a NumPy matrix (days x stocks)
-    matrix = normalized.values  # (num_days, num_stocks)
-    sq = (matrix**2).sum(axis=0)
-    gram = np.dot(matrix.T, matrix)
-    ssd_matrix = sq.reshape(-1, 1) + sq.reshape(1, -1) - 2 *gram
     tickers = normalized.columns.tolist()
-    num_stocks = len(tickers)
-    print(f"num_stocks: {num_stocks}")
-    # Compute all pairwise distances at once
-    results = []
-    for i in range(num_stocks):
-        for j in range(i+1, num_stocks):
-            if (tickers[i], tickers[j]) in same_company:
-                continue
-            diff = matrix[:, i] - matrix[:, j]
-            distance = np.dot(diff, diff)
-            results.append((tickers[i], tickers[j], distance))
-    ssd_list = []
-    for i in range(len(results)):
-        x, y, z = results[i]
-        ssd_list.append(z)
 
-    lower_bound = np.percentile(ssd_list, ssd_band)
-    upper_bound = np.percentile(ssd_list, 100 - ssd_band)
+    matrix = normalized.values
+    difference = matrix[:, :, None] - matrix[:, None, :]
+    sq = (difference**2).sum(axis=0)
+
+    pairs_extract = np.triu_indices(sq.shape[1], k=1)
+
+    stock_diff = sq[pairs_extract[0], pairs_extract[1]]
+
+    lower_bound = np.percentile(stock_diff, ssd_band)
+    upper_bound = np.percentile(stock_diff, 100 - ssd_band)
     qualify_over_bound = []
     print(f"Pairs passing SSD band filter: {len(qualify_over_bound)}")
     print(f"lower: {lower_bound}, upper: {upper_bound}")
-    print(f"Sample SSDs: {ssd_list[:5]}")
+    print(f"Sample SSDs: {stock_diff[:5]}")
 
-    for a, b, c in results:
-        if c > lower_bound and c < upper_bound:
-            qualify_over_bound.append((a, b, c))
+    for k, distance in enumerate(stock_diff):
+        if (tickers[pairs_extract[0][k]], tickers[pairs_extract[1][k]]) in same_company:
+            continue
+        if distance > lower_bound and distance < upper_bound:
+            qualify_over_bound.append(((tickers[pairs_extract[0][k]],
+                                        tickers[pairs_extract[1][k]]), distance))
 
     print(f"Pairs passing SSD band filter: {len(qualify_over_bound)}")
 
     # Sort and return top n pairs
 
     top_pairs_by_euclidean = {}
-    for ticker1, ticker2, _ in qualify_over_bound:
+    for (ticker1, ticker2), distance in qualify_over_bound:
         euclidean_distance = euclidean(ticker1, ticker2, beta_dict)
         top_pairs_by_euclidean[(ticker1, ticker2)] = euclidean_distance
 
